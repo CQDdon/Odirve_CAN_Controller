@@ -3,6 +3,20 @@ from rclpy.node import Node
 from std_msgs.msg import Int32MultiArray  # Use Int32MultiArray to receive integer arrays
 import can
 
+
+def pad_list(data_bytes, target_length=8, pad_value=0):
+    # Calculate how many elements to pad
+    padding_needed = target_length - len(data_bytes)
+    
+    if padding_needed > 0:
+        # Pad the list with the specified pad_value
+        data_bytes += [pad_value] * padding_needed  # Append the padding values
+    elif padding_needed < 0:
+        # Trim the list if it's longer than the target_length
+        data_bytes = data_bytes[:target_length]
+    
+    return data_bytes
+
 class CANUSBNode(Node):
     def __init__(self):
         super().__init__('odrive_sender_node')
@@ -17,7 +31,7 @@ class CANUSBNode(Node):
             self.listener_callback,
             10
         )
-
+        
     def listener_callback(self, msg):
         # Ensure we have exactly 5 elements: 1 ID and 4 data bytes
         if len(msg.data) != 5:
@@ -27,6 +41,7 @@ class CANUSBNode(Node):
         # Extract ID and data bytes from the message
         arbitration_id = msg.data[0]
         data_bytes = msg.data[1:5]
+        data_bytes = pad_list(data_bytes)
 
         # Create CAN message with extracted ID and data bytes
         can_message = can.Message(
@@ -34,6 +49,7 @@ class CANUSBNode(Node):
             data=data_bytes,
             is_extended_id=False
         )
+        print(data_bytes)
 
         # Send CAN message
         try:
