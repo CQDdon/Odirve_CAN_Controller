@@ -10,7 +10,7 @@ def pad_list(data_bytes, target_length=8, pad_value=0):
     
     if padding_needed > 0:
         # Pad the list with the specified pad_value
-        data_bytes += [pad_value] * padding_needed  # Append the padding values
+        data_bytes = data_bytes + [0] * (target_length - len(data_bytes))  # Append the padding values
     elif padding_needed < 0:
         # Trim the list if it's longer than the target_length
         data_bytes = data_bytes[:target_length]
@@ -33,15 +33,12 @@ def pad_array(data_bytes, target_length=8, pad_value=0):
 
 class CANUSBNode(Node):
     def __init__(self):
-        super().__init__('odrive_sender_node')
-
-        # Initialize CAN bus
-        self.bus = can.Bus(interface='socketcan', channel='can0', bitrate=500000)
+        super().__init__('test_sender_node')
 
         # Create a subscriber to listen on the `encoded_data` topic
         self.subscriber = self.create_subscription(
             UInt8MultiArray,     # Expecting an array of integers
-            'encoded_data',      # Topic name
+            '/encoded_data',      # Topic name
             self.listener_callback,
             10
         )
@@ -57,22 +54,16 @@ class CANUSBNode(Node):
         data_bytes = msg.data[1:5]
         data_bytes = pad_array(data_bytes)
 
-        # Create CAN message with extracted ID and data bytes
-        can_message = can.Message(
-            arbitration_id=arbitration_id,
-            data=data_bytes,
-            is_extended_id=False
-        )
-
+        # Display CAN message content (arbitration ID and data bytes in hex)
         hex_data = ''.join(f'{b:02X}' for b in data_bytes)
         print(f"{arbitration_id:02X}#{hex_data}")
 
         # Send CAN message
-        try:
-            self.bus.send(can_message)
-            self.get_logger().info(f"Message sent on {self.bus.channel_info}")
-        except can.CanError:
-            self.get_logger().error("Message NOT sent")
+        # try:
+        #     self.bus.send(can_message)
+        #     self.get_logger().info(f"Message sent on {self.bus.channel_info}")
+        # except can.CanError:
+        #     self.get_logger().error("Message NOT sent")
 
 def main(args=None):
     rclpy.init(args=args)

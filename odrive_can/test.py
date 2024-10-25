@@ -1,17 +1,15 @@
 
-def pad_list(data_bytes, target_length=8, pad_value=0):
-    # Calculate how many elements to pad
-    padding_needed = target_length - len(data_bytes)
-    
-    if padding_needed > 0:
-        # Pad the list with the specified pad_value
-        data_bytes += [pad_value] * padding_needed  # Append the padding values
-    elif padding_needed < 0:
-        # Trim the list if it's longer than the target_length
-        data_bytes = data_bytes[:target_length]
-    
-    return data_bytes
+import can
 
-data_bytes = [0x00,0x00,0x41,0x20]
-data_bytes = pad_list(data_bytes)
-print(data_bytes)
+# Candlelight firmware on Linux
+bus = can.Bus(interface='socketcan', channel='can0', bitrate=500000)
+
+msg = can.Message(arbitration_id=0x00D,                  
+                data=[0x00, 0x00, 0x20, 0x41, 0x00, 0x00, 0x00, 0x00],                  
+                is_extended_id=False)
+
+try:
+    bus.send(msg)
+    print("Message sent on {}".format(bus.channel_info))
+except can.CanError:
+    print("Message NOT sent")

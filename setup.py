@@ -22,6 +22,7 @@ setup(
         'console_scripts': [
             'keyboard_sender_node = odrive_can.keyboard_sender_node:main',
             'odrive_sender_node = odrive_can.odrive_sender:main',
+            'test_sender_node = odrive_can.test_sender:main',
         ],
     },
 )
