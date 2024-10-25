@@ -1,6 +1,0 @@
-floattohexmodule.c
-setup.py
-FloatToHex.egg-info/PKG-INFO
-FloatToHex.egg-info/SOURCES.txt
-FloatToHex.egg-info/dependency_links.txt
-FloatToHex.egg-info/top_level.txt

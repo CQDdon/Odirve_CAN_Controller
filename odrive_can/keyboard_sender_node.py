@@ -15,7 +15,7 @@ class KeyboardInputNode(Node):
 
     def publish_encoded_data(self):
         # Ask user for input in format [ID(hex)],[MODE(struct)],[DATA(float)]
-        user_input = input("Enter input in format [ID(hex)],[MODE(struct)],[DATA(float)] (e.g., 01,vel,100.56): ")
+        user_input = input("Enter input: ")
 
         # Split the input into components
         id_str, mode_str, data_str = user_input.split(',')
