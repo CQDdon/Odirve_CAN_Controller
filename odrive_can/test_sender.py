@@ -1,3 +1,5 @@
+# This is a clone of odrive_sender.py using to test the subscriber without connecting to a CAN device
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import UInt8MultiArray  # The topic use UInt8MultiArray to receive integer arrays
@@ -45,13 +47,13 @@ class CANUSBNode(Node):
         
     def listener_callback(self, msg):
         # Ensure we have exactly 5 elements: 1 ID and 4 data bytes
-        if len(msg.data) != 5:
+        if len(msg.data) != 6:
             self.get_logger().error("Invalid data length; expected 5 integers (1 ID and 4 data bytes)")
             return
 
         # Extract ID and data bytes from the message
-        arbitration_id = msg.data[0]
-        data_bytes = msg.data[1:5]
+        arbitration_id = msg.data[0] << 8 | msg.data[1]
+        data_bytes = msg.data[2:6]
         data_bytes = pad_array(data_bytes)
 
         # Display CAN message content (arbitration ID and data bytes in hex)

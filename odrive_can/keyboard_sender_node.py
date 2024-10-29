@@ -49,7 +49,7 @@ class KeyboardInputNode(Node):
         encoded_id_low = encoded_id & 0xFF
         encoded_id_high = (encoded_id >> 8) & 0x07  # 3 bits
 
-        message.data = [encoded_id_high, encoded_id_low] + [int(b) for b in data_array[:3]]
+        message.data = [encoded_id_high, encoded_id_low] + [int(b) for b in data_array[:4]]
 
 
         # Log and publish the message
