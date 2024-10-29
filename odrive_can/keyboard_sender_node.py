@@ -23,6 +23,10 @@ class KeyboardInputNode(Node):
         # Convert ID from string to integer (assuming hex)
         input_id = int(id_str, 16)
 
+        if input_id > 0x3F:  # 6-bit limit
+            self.get_logger().error("Input ID exceeds 6-bit limit for 11-bit encoding")
+            return
+
         # Determine mode and corresponding hexadecimal
         mode_hex = 0x0D if mode_str == 'vel' else 0x0C if mode_str == 'ang' else None
         if mode_hex is None:
@@ -30,7 +34,7 @@ class KeyboardInputNode(Node):
             return
 
         # Encode ID: ID_input << 5 | mode_hex
-        encoded_id = (input_id << 5) | mode_hex
+        encoded_id = ((input_id << 5) | mode_hex) & 0x7FF
 
         # Convert data from float to IEEE 754 (little-endian)
         data_float = float(data_str)
@@ -41,7 +45,12 @@ class KeyboardInputNode(Node):
 
         # Prepare message
         message = UInt8MultiArray()
-        message.data = [encoded_id] + [int(b) for b in data_array]
+        # Extract the 8 least significant bits and the upper 3 bits
+        encoded_id_low = encoded_id & 0xFF
+        encoded_id_high = (encoded_id >> 8) & 0x07  # 3 bits
+
+        message.data = [encoded_id_high, encoded_id_low] + [int(b) for b in data_array[:3]]
+
 
         # Log and publish the message
         hex_data_array = [hex(b) for b in data_array]
